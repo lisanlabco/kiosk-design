@@ -89,7 +89,7 @@ dt{color:var(--mute)}dd{margin:0}
 <button class="chip" data-v="f">正面</button>
 <button class="chip" data-v="s">側面</button>
 <button class="chip" data-v="b">背面</button>
-<button class="chip" id="door">打開後門</button>
+<button class="chip" id="door">打開主機艙</button>
 <button class="chip" id="orient" hidden>改成橫式</button>
 <button class="chip" id="spin">自動旋轉</button>
 </div>
@@ -172,7 +172,7 @@ const DATA=[
 DATA[10].sw=[['白銀色',0xdcdee1,0xc9ccd0],['深灰色',0x55585d,0x3e4044]];
 DATA[5].sw=[['白銀色',0xc9ccd0,0xdfe6ee],['深灰色',0x4a4c51,0xdfe6ee]];
 DATA[6].sw=[['白銀色',0xc9ccd0,0x007d7d],['深灰色',0x55585d,0x007d7d]];
-DATA[8].sw=[['白銀色',0xcfd1d4,0xb9bcc0,0x34363a],['深灰色',0x55585d,0x3a3c40,0x1f2022]];
+DATA[8].sw=[['白銀色',0xcfd1d4,0xb9bcc0,0x34363a],['深灰色',0x55585d,0x3a3c40,0x1f2022]];DATA[8].h=29;DATA[8].R=92;
 const fig=document.getElementById('fig');
 let renderer;
 try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});}catch(e){document.getElementById('load').textContent='這個瀏覽器無法顯示3D，請換 Chrome 或 Safari 開啟。';throw e}
@@ -248,6 +248,38 @@ const lensMat=new THREE.MeshPhysicalMaterial({color:0x0a1020,roughness:0.04,clea
 const ringMat=metal(0x9a9da3,0.25);
 const darkMat=new THREE.MeshStandardMaterial({color:0x1b1c1f,roughness:0.75});
 const holeMat=new THREE.MeshBasicMaterial({color:0x050505});
+const linerMat=new THREE.MeshStandardMaterial({color:0x141517,roughness:0.85,side:THREE.DoubleSide});
+const pcMat=new THREE.MeshStandardMaterial({color:0x2a2c30,roughness:0.55,metalness:0.3});
+const trayMat=new THREE.MeshPhysicalMaterial({color:0xc4c7cb,metalness:1,roughness:0.3});
+function rectS(w,h,r,cx=0,cy=0,p=new THREE.Shape()){const x=cx-w/2,y=cy-h/2;r=Math.min(r,w/2,h/2);p.moveTo(x+r,y);p.lineTo(x+w-r,y);p.quadraticCurveTo(x+w,y,x+w,y+r);p.lineTo(x+w,y+h-r);p.quadraticCurveTo(x+w,y+h,x+w-r,y+h);p.lineTo(x+r,y+h);p.quadraticCurveTo(x,y+h,x,y+h-r);p.lineTo(x,y+r);p.quadraticCurveTo(x,y,x+r,y);return p}
+/* 主機艙：門開在 local -z 面（z=0），往 +z 是艙內 */
+function hostBay(parent,mat,{hw,hh,cav,pc=[0.7,0.55,0.75]}){
+ const g=new THREE.Group();parent.add(g);
+ {const sh=rectS(hw,hh,0.6,0,0,new THREE.Shape());sh.holes.push(rectS(hw-0.3,hh-0.3,0.5,0,0,new THREE.Path()));const lg=new THREE.ExtrudeGeometry(sh,{depth:cav,bevelEnabled:false});const l=new THREE.Mesh(lg,linerMat);l.position.z=0.02;g.add(l);
+  const bk=new THREE.Mesh(new THREE.PlaneGeometry(hw,hh),linerMat);bk.position.z=cav;g.add(bk)}
+ const P=new THREE.Group();P.position.z=cav*0.55;P.visible=false;g.add(P);
+ const bw=hw*pc[0],bh=hh*pc[1],bd=cav*pc[2];
+ const box=new THREE.Mesh(new RoundedBoxGeometry(bw,bh,bd,3,0.25),pcMat);box.position.y=-hh/2+0.9+bh/2;P.add(box);
+ for(let i=0;i<9;i++){const v=new THREE.Mesh(new THREE.PlaneGeometry(bw*0.05,bh*0.12),holeMat);v.position.set(-bw*0.3+i*bw*0.075,box.position.y-bh*0.3,-bd/2-0.01);v.rotation.y=Math.PI;P.add(v)}
+ const led=new THREE.Mesh(new THREE.CircleGeometry(0.15,12),new THREE.MeshBasicMaterial({color:0x6fe3c9}));led.rotation.y=Math.PI;led.position.set(bw*0.35,box.position.y+bh*0.25,-bd/2-0.01);P.add(led);
+ const tray=new THREE.Mesh(new THREE.BoxGeometry(bw+1.2,0.35,bd+0.6),trayMat);tray.position.y=-hh/2+0.7;P.add(tray);
+ const handle=new THREE.Mesh(new THREE.TorusGeometry(Math.min(2,bw*0.12),0.18,8,24,Math.PI),trayMat);handle.rotation.set(Math.PI/2,0,Math.PI);handle.position.set(0,-hh/2+0.7,-bd/2-0.5);P.add(handle);
+ for(const sx of[-1,1]){const c=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,cav*0.5,10).rotateX(Math.PI/2),pcMat);c.position.set(sx*bw*0.18,box.position.y+bh/2+0.4,bd*0.15);P.add(c)}
+ const piv=new THREE.Group();piv.position.set(hw/2,0,0);g.add(piv);
+ const door=new THREE.Mesh(new RoundedBoxGeometry(hw-0.25,hh-0.25,0.3,3,0.12),mat);door.position.set(-hw/2,0,-0.12);door.castShadow=true;piv.add(door);
+ const lock=new THREE.Mesh(new THREE.CylinderGeometry(Math.min(0.55,hh*0.09),Math.min(0.55,hh*0.09),0.35,28).rotateX(Math.PI/2),ringMat);lock.position.set(-hw+Math.max(1.3,hw*0.09),0,-0.36);piv.add(lock);
+ for(const hy of[-hh*0.3,hh*0.3]){const h=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,Math.min(1.4,hh*0.22),12),ringMat);h.position.set(0.02,hy,-0.18);piv.add(h)}
+ for(let i=0;i<7;i++){const v=new THREE.Mesh(new THREE.PlaneGeometry(hw*0.085,0.28),holeMat);v.rotation.y=Math.PI;v.position.set(-hw*0.36+i*hw*0.12,hh/2+0.75,-0.01);g.add(v)}
+ return {g,piv,pc:P}}
+/* 帶開口的實心機殼：背面（local -z）開門 */
+function hostBox(parent,mat,{W,H,D,r=1.2,hw,hh,hcy=0,cav,pc}){
+ const G=new THREE.Group();parent.add(G);
+ const fr=new THREE.Mesh(new RoundedBoxGeometry(W,H,D-cav+0.4,4,r),mat);fr.position.z=cav/2-0.2;fr.castShadow=fr.receiveShadow=true;G.add(fr);
+ const sh=rectS(W,H,r,0,0,new THREE.Shape());sh.holes.push(rectS(hw,hh,0.6,0,hcy,new THREE.Path()));
+ const eg=new THREE.ExtrudeGeometry(sh,{depth:cav-0.2,bevelEnabled:true,bevelSize:0.15,bevelThickness:0.15,bevelSegments:2,curveSegments:12});
+ const ring=new THREE.Mesh(eg,mat);ring.position.z=-D/2+0.15;ring.castShadow=ring.receiveShadow=true;G.add(ring);
+ const bay=hostBay(G,mat,{hw,hh,cav,pc});bay.g.position.set(0,hcy,-D/2);return {G,door:{piv:bay.piv,pc:bay.pc}}}
+
 
 function dotTex(ru,rv){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,64,64);g.fillStyle='#161616';g.beginPath();g.arc(32,32,15,0,Math.PI*2);g.fill();const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(ru,rv);t.anisotropy=8;return t}
 function grilleMat(base,ru,rv,isMetal){const m=base.clone();const t=dotTex(ru,rv);t.colorSpace=THREE.SRGBColorSpace;m.map=t;if(isMetal){m.metalnessMap=dotTex(ru,rv)}m.anisotropy=0;return m}
@@ -393,7 +425,10 @@ const concepts=[];
   const tri=[V(6-dep,0),V(6,0),V(zt,Hp)];
   const inset=(p,t)=>{const L=p.map((q,i)=>{const r=p[(i+1)%p.length],dx=r.x-q.x,dy=r.y-q.y,len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;return{x:q.x+nx*t,y:q.y+ny*t,dx,dy}});return L.map((l,i)=>{const m=L[(i+L.length-1)%L.length],den=m.dx*l.dy-m.dy*l.dx,u=((l.x-m.x)*l.dy-(l.y-m.y)*l.dx)/den;return V(m.x+m.dx*u,m.y+m.dy*u)})};
   const roundPoly=(p,pts,r0)=>{pts.forEach((P,i)=>{const r=Array.isArray(r0)?r0[i]:r0;const pr=pts[(i+pts.length-1)%pts.length],nx=pts[(i+1)%pts.length];const a=P.clone().add(pr.clone().sub(P).setLength(r)),c=P.clone().add(nx.clone().sub(P).setLength(r));if(i===0)p.moveTo(a.x,a.y);else p.lineTo(a.x,a.y);p.quadraticCurveTo(P.x,P.y,c.x,c.y)});p.closePath();return p};
-  const triM=mesh(ext(s=>{roundPoly(s,tri,[3.2,0.5,1.2]);s.holes.push(roundPoly(new THREE.Path(),inset(tri,2.1),1.6))},W,0.8),mode===2?frostM:body);triM.position.y=lift-1.2;U.add(triM);
+  const triM=mesh(ext(s=>{roundPoly(s,tri,[3.2,0.5,1.2]);if(mode===1)s.holes.push(rectS(10,8.6,0.6,-4,5.8,new THREE.Path()));else s.holes.push(roundPoly(new THREE.Path(),inset(tri,2.1),1.6))},W,0.8),mode===2?frostM:body);triM.position.y=lift-1.2;U.add(triM);
+  if(mode===1){const Gb=new THREE.Group();Gb.rotation.y=Math.PI/2;Gb.position.set(-W/2,5.8+lift-1.2,-4);U.add(Gb);
+   const bay=hostBay(Gb,body,{hw:10,hh:8.6,cav:14,pc:[0.72,0.55,0.8]});
+   const fill=mesh(new THREE.BoxGeometry(10.02,8.62,W-14-0.05),body);fill.position.z=14+(W-14)/2;Gb.add(fill);U.userData.door={piv:bay.piv,pc:bay.pc}}
   const nz=Math.cos(tilt),ny=Math.sin(tilt);
   const P=new THREE.Group();P.position.set(0,Hp/2+b+ny*(b+0.05)+lift-1.2,6-Hp/2*tn+nz*(b+0.05));P.rotation.x=-tilt;U.add(P);
 
@@ -438,7 +473,7 @@ const concepts=[];
 
   return U}
  const Gl=unit(29.4,16.5,'l',22*Math.PI/180,19),vars=[0,1,2,3].map(m=>unit(16.5,29.4,'p',20*Math.PI/180,18,m));
- const camC={G:vars[0],vars,vi:0,land:Gl,portrait:true,d,mats,acc:[lightM],door:null,camAng:10};
+ const camC={G:vars[0],vars,vi:0,land:Gl,portrait:true,d,mats,acc:[lightM],camAng:10,get door(){return this.vars[this.vi].userData.door||null}};
  const setCam=v=>{vars[1].userData.cam.rotation.x=-(v-20)*Math.PI/180};setCam(10);
  camC.camObj=()=>camC.vi===1?vars[1].userData.cam:null;
  camC.slider=()=>camC.vi===1?{cam:true,label:'鏡頭角度',min:-5,max:30,value:camC.camAng,fmt:v=>(v>0?'上':v<0?'下':'')+Math.abs(v)+'°',set:v=>{camC.camAng=v;setCam(v)}}:null;
@@ -470,12 +505,13 @@ const concepts=[];
   const sc=new THREE.Mesh(new THREE.PlaneGeometry(16.5,29.4),new THREE.MeshBasicMaterial({color:0x1a1a1a,toneMapped:false}));sc.position.set(0,-0.4,0.05);P.add(sc);uiMeshes.push([sc,'p']);
   const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,15.05,0.05);P.add(r);
   const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,15.05,0.07);P.add(l);{const an=new THREE.Group();an.position.set(0,15.05,0.1);P.add(an);G.userData.camAnchor=an}
+  {const hb=hostBox(P,body,{W:15.5,H:16,D:5.2,r:1.8,hw:11,hh:10.5,hcy:-0.6,cav:4.4,pc:[0.8,0.45,0.75]});hb.G.position.set(0,-6.5,-0.6-1.6-2.4);G.userData.door=hb.door}
   if(v===1){for(const x of[-2.5,2.5]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.14,12).rotateX(-PI/2),holeMat);m.position.set(x,38.25,-6.5);G.add(m)}}
   else for(const x of[-2,2]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,15.05,0.04);P.add(m)}
   const key=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.12,32).rotateX(PI/2),keyM);key.position.set(7.2,15.05,0.08);P.add(key);
   return G}
  const vars=[0,1,2,3].map(fold);
- concepts.push({G:vars[0],vars,vi:0,d,mats,acc:[keyM],door:null,camAnchor(){return this.vars[this.vi].userData.camAnchor}});}
+ concepts.push({G:vars[0],vars,vi:0,d,mats,acc:[keyM],get door(){return this.vars[this.vi].userData.door||null},camAnchor(){return this.vars[this.vi].userData.camAnchor}});}
 
 /* H 托座 */
 {const d=DATA[7],G=new THREE.Group();
@@ -539,7 +575,9 @@ const concepts=[];
  for(const x of[-2.6,2.6]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,11.2,0.73);T.add(m)}
  const red=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0xb3262e,roughness:0.4}));red.position.set(10.6,-12.02,0.2);T.add(red);
  const grn=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0x1f6b4f,roughness:0.4}));grn.position.set(12.3,-12.02,0.2);T.add(grn);
- const iC={G,d,mats:[frame],acc:[stand],extra:[fabM],door:null,tilt:25,camAnchor:()=>dAn};
+ const dJ=new THREE.Group();while(G.children.length)dJ.add(G.children[0]);dJ.position.y=6.6;G.add(dJ);
+ const dHost=hostBox(G,stand,{W:30,H:6.6,D:22,r:1.4,hw:20,hh:4.6,hcy:0,cav:14,pc:[0.8,0.62,0.78]});dHost.G.position.set(0,3.3,-5.75);
+ const iC={G,d,mats:[frame],acc:[stand],extra:[fabM],door:dHost.door,tilt:25,camAnchor:()=>dAn};
  iC.slider=()=>({label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
  concepts.push(iC);}
 
@@ -593,6 +631,7 @@ const concepts=[];
  const K=new THREE.Group();K.position.z=8;G.add(K);
  {const g=new THREE.ExtrudeGeometry(rs(W,24,2.2),{depth:PLATE-0.4,bevelEnabled:true,bevelSize:0.2,bevelThickness:0.2,bevelSegments:4});g.rotateX(-PI/2);g.translate(0,0.2,-8.1);K.add(mesh(g,silver));
   for(const sx of[-1,1])for(const z of[-17,1.5]){const f=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.12,24),rec);f.position.set(sx*13.5,0.04,z);K.add(f)}}
+ const aHost=hostBox(K,white,{W:30,H:12,D:13.2,r:1.6,hw:20,hh:8.4,hcy:-0.4,cav:10,pc:[0.75,0.62,0.72]});aHost.G.position.set(0,PLATE+6,-13.4);
  const Cz=1.083,Cr=2.4,T=1.8,arcEnd=[3.338,3.221],H1=[0.507,11],H2=[-1.184,10.384],IN=[1.647,2.605];
  {const hs=mesh(ext(s=>{s.moveTo(-6,0);s.lineTo(Cz,0);s.absarc(Cz,Cr,Cr,-PI/2,a,false);s.lineTo(H1[0],H1[1]);s.lineTo(H2[0],H2[1]);s.lineTo(IN[0],IN[1]);s.absarc(Cz,Cr,Cr-T,a,-PI/2,true);s.lineTo(-6,T);s.absarc(-6,T/2,T/2,PI/2,PI*1.5,false)},W,B),white);hs.position.y=PLATE;K.add(hs)}
  const toW=(pz,py,off)=>new THREE.Vector3(0,py+PLATE+B+sa*off,pz+ca*off);
@@ -627,7 +666,7 @@ const concepts=[];
  const sl=side(-XS),sr=side(XS);strip(K,new THREE.CatmullRomCurve3(sl));strip(K,new THREE.CatmullRomCurve3(sr));strip(K,new THREE.LineCurve3(sl[sl.length-1],sr[sr.length-1]),4);
  for(const p of[sl[sl.length-1],sr[sr.length-1]]){const o=new THREE.Mesh(new THREE.SphereGeometry(0.26,16,10),acr);o.position.copy(p);K.add(o)}
  const setLed=c=>{if(c==null){acr.emissive.setHex(0);acr.emissiveIntensity=0;halo.opacity=0;halo2.opacity=0;coreM.visible=false}else{acr.emissive.setHex(c);acr.emissiveIntensity=0.9;halo.color.setHex(c);halo.opacity=0.42;halo2.color.setHex(c);halo2.opacity=0.14;coreM.color.setHex(c);coreM.visible=true}};setLed(null);
- const kC={G,d,mats:[white],acc:[silver],door:null,mi:0,sd:0,ct:11,cp:0};
+ const kC={G,d,mats:[white],acc:[silver],door:aHost.door,mi:0,sd:0,ct:11,cp:0};
  const ap=()=>{hinge.rotation.x=-(a+kC.sd*PI/180);CM.rotation.x=kC.ct*PI/180;CM.rotation.y=kC.cp*PI/180};ap();
 kC.camObj=()=>CM;
  kC.sliders=()=>[{label:'螢幕傾角',min:-5,max:5,value:kC.sd,fmt:v=>(20+v)+'°',set:v=>{kC.sd=v;ap()}},{cam:true,label:'鏡頭下俯',min:0,max:20,value:kC.ct,fmt:v=>v+'°',set:v=>{kC.ct=v;ap()}},{cam:true,label:'鏡頭左右',min:-15,max:15,value:kC.cp,fmt:v=>(v>0?'右':v<0?'左':'')+Math.abs(v)+'°',set:v=>{kC.cp=v;ap()}}];
@@ -682,7 +721,7 @@ function renderInfo(){const c=concepts[cur],d=c.d,LS=c.land&&c.vi===0&&!c.portra
  info.querySelectorAll('#sw button').forEach(b=>b.addEventListener('click',()=>{const s=d.sw[+b.dataset.s];c.mats.forEach(m=>m.color.setHex(s[1]));if(s[2]!==undefined)c.acc.forEach(m=>m.color.setHex(s[2]));if(s[3]!==undefined&&c.extra)c.extra.forEach(m=>m.color.setHex(s[3]));info.querySelectorAll('#sw button').forEach(x=>x.setAttribute('aria-pressed',x===b))}))}
 function view(v){const c=concepts[cur],d=c.d,P2=(c.alt&&c.portrait)||(c.land&&!(c.vi===0&&!c.portrait)),R=P2?d.RP:d.R,h=P2?d.hP:d.h;tgtGoal.set(0,h*0.47,0);if(userG.visible)tgtGoal.set(0,-14,30);
  const P={q:[R*0.55,h*0.95,R*0.82],f:[0,h*0.7,R],s:[R,h*0.7,0],b:[-R*0.5,h*0.85,-R*0.86]}[v];camGoal=new THREE.Vector3(...P);let off=camGoal.clone().sub(tgtGoal);off.multiplyScalar(Math.max(1,0.72/cam.aspect));if(userG.visible){const U={q:[0.85,0.32,0.42],f:[0.25,0.3,-1],s:[1,0.18,0],b:[0.3,0.35,1]}[v];off=new THREE.Vector3(...U).normalize().multiplyScalar(370*Math.max(1,0.72/cam.aspect))}camGoal=tgtGoal.clone().add(off);anim=new THREE.Spherical().setFromVector3(off)}
-function setDoor(o){doorOpen=o;doorBtn.textContent=o?'關上後門':'打開後門';doorBtn.classList.toggle('on',o)}
+function setDoor(o){doorOpen=o;doorBtn.textContent=o?'關上主機艙':'打開主機艙';doorBtn.classList.toggle('on',o)}
 const orientBtn=document.getElementById('orient');
 const varbar=document.getElementById('varbar');
 const slEl=document.getElementById('sliders');
