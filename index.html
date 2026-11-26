@@ -595,7 +595,7 @@ const concepts=[];
  const waves=[];{const wm=[0,1,2,3].map(()=>new THREE.MeshBasicMaterial({color:0x007d7d,transparent:true,opacity:0,depthWrite:false,toneMapped:false}));
   for(let i=0;i<4;i++){const g=new THREE.TorusGeometry(1,0.018,6,128);const m=new THREE.Mesh(g,wm[i]);m.position.set(0,3.3,5.4);G.add(m);waves.push(m)}}
  iC.pulse=true;iC.tick=t=>{const vis=concepts[cur]===iC;waves.forEach((m,i)=>{const ph=((t/2400)+i/4)%1,sx=15.6+ph*9,sy=2.6+ph*7;m.scale.set(sx,sy,1);m.position.z=5.4+ph*9;m.material.opacity=vis?0.6*(1-ph)*Math.min(1,ph*5):0})};
- iC.camObj=()=>CMd;iC.mi=0;iC.modes=[{name:'鏡頭跟著螢幕',apply:()=>{dComp=false;setTilt(dDeg)}},{name:'鏡頭自動補償',apply:()=>{dComp=true;setTilt(dDeg)}}];iC.slider=()=>({cam:true,label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
+ iC.camObj=()=>CMd;iC.slider=()=>({cam:true,label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
  concepts.push(iC);}
 
 /* J 折角終端 */
