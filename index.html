@@ -199,23 +199,23 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  const brass=new THREE.MeshPhysicalMaterial({color:0xc9a96a,metalness:1,roughness:0.3});
  const leather=new THREE.MeshPhysicalMaterial({color:0x8a7a68,roughness:0.6,sheen:0.4});
  const rugM=new THREE.MeshStandardMaterial({color:0xcfc6b8,roughness:1});
- /* 理財櫃檯：石材檯面＋木作櫃體＋金屬踢腳 */
- const top=um(RB(120,3,62,1.2),stone);top.position.set(0,-1.5,12);userG.add(top);
- const body=um(RB(116,68,22,1.5),wood);body.position.set(0,-37,-8);userG.add(body);
- for(const sx of[-1,1]){const sp=um(RB(4,70,58,1),wood);sp.position.set(sx*57,-38,12);userG.add(sp)}
- const apron=um(RB(108,6,3,0.8),wood);apron.position.set(0,-6,40);userG.add(apron);
- const lip=um(new THREE.BoxGeometry(108,0.6,0.4),brass);lip.position.set(0,-8.6,41.6);userG.add(lip);
- const kick=um(new THREE.BoxGeometry(112,4,20),brass);kick.position.set(0,-73,-8);userG.add(kick);
- /* 隔屏：霧面玻璃 */
- const scr=new THREE.Mesh(new THREE.BoxGeometry(120,34,0.8),new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.35,transmission:0.85,thickness:0.8,transparent:true,opacity:0.6}));scr.position.set(0,17,-19);userG.add(scr);
- const scrF=um(new THREE.BoxGeometry(120,0.8,1.2),brass);scrF.position.set(0,34,-19);userG.add(scrF);
- /* 單人皮質沙發扶手椅 */
- const seat=um(RB(54,10,50,4),leather);seat.position.set(0,-30,70);userG.add(seat);
- const back=um(RB(56,40,10,4.5),leather);back.position.set(0,-6,92);back.rotation.x=0.16;userG.add(back);
- for(const sx of[-1,1]){const arm=um(RB(9,20,52,4),leather);arm.position.set(sx*30,-22,72);userG.add(arm)}
- const base=um(RB(62,6,54,2),wood);base.position.set(0,-38,72);userG.add(base);
- for(const sx of[-1,1])for(const z of[48,96]){const l=um(new THREE.CylinderGeometry(1.2,0.8,34,12),brass);l.position.set(sx*27,-58,z);userG.add(l)}
- const rug=new THREE.Mesh(new THREE.CylinderGeometry(70,70,0.6,64),rugM);rug.scale.z=0.75;rug.position.set(0,-74.7,60);rug.receiveShadow=true;userG.add(rug);
+ /* 開放式大廳低櫃：圓角島型櫃、白色石材檯面、淺木飾面，客側開放 */
+ const pill=(w,d,r)=>{const p=new THREE.Shape(),x=w/2-r;p.moveTo(-x,-d/2);p.lineTo(x,-d/2);p.absarc(x,0,d/2,-Math.PI/2,Math.PI/2,false);p.lineTo(-x,d/2);p.absarc(-x,0,d/2,Math.PI/2,Math.PI*1.5,false);return p};
+ const slab=(w,d,h,m,y,z)=>{const g=new THREE.ExtrudeGeometry(pill(w,d,d/2),{depth:h,bevelEnabled:true,bevelSize:0.4,bevelThickness:0.4,bevelSegments:3,curveSegments:32});g.rotateX(Math.PI/2);const o=um(g,m);o.position.set(0,y,z);userG.add(o);return o};
+ slab(150,64,2.4,stone,0.4,12);
+ const oak=new THREE.MeshStandardMaterial({color:0xc8a985,roughness:0.6});
+ slab(140,26,66,oak,-3,-6);
+ const inset=um(new THREE.BoxGeometry(128,0.6,0.6),brass);inset.position.set(0,-3.4,7.3);userG.add(inset);
+ const kickG=slab(132,20,4,new THREE.MeshStandardMaterial({color:0x3a3c40,roughness:0.6}),-71,-6);
+ /* 地坪：大理石磚 */
+ {const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle='#ebe7e0';g.fillRect(0,0,256,256);for(let i=0;i<900;i++){g.strokeStyle=`rgba(150,140,130,${Math.random()*0.08})`;g.beginPath();const x=Math.random()*256,y=Math.random()*256;g.moveTo(x,y);g.lineTo(x+Math.random()*60-30,y+Math.random()*20-10);g.stroke()}g.strokeStyle='rgba(120,110,100,.35)';g.lineWidth=2;g.strokeRect(0,0,256,256);
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(6,6);t.colorSpace=THREE.SRGBColorSpace;
+  const fl=new THREE.Mesh(new THREE.CircleGeometry(160,64),new THREE.MeshStandardMaterial({map:t,roughness:0.35,transparent:true,opacity:0.95}));fl.rotation.x=-Math.PI/2;fl.position.set(0,-74.8,30);fl.receiveShadow=true;userG.add(fl)}
+ /* 大廳單椅：低背包覆殼椅＋旋轉底座 */
+ const seat=um(RB(48,8,46,3.5),leather);seat.position.set(0,-30,70);userG.add(seat);
+ const back=um(RB(50,26,7,3.5),leather);back.position.set(0,-14,92);back.rotation.x=0.18;userG.add(back);
+ const post=um(new THREE.CylinderGeometry(2,2,36,16),brass);post.position.set(0,-52,72);userG.add(post);
+ const disk=um(new THREE.CylinderGeometry(20,22,2,40),new THREE.MeshStandardMaterial({color:0x3a3c40,roughness:0.5,metalness:0.6}));disk.position.set(0,-73.8,72);userG.add(disk);
  const limb=(p,q,r)=>{const A=new THREE.Vector3(...p),Bv=new THREE.Vector3(...q),dd=Bv.clone().sub(A),len=dd.length();const m=um(new THREE.CapsuleGeometry(r,Math.max(0.1,len-2*r),6,16),pm);m.position.copy(A).add(Bv).multiplyScalar(0.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dd.normalize());userG.add(m)};
  limb([0,-20,68],[0,26,64],11.5);
  const head=um(new THREE.SphereGeometry(8.6,32,20),pm);head.scale.set(0.92,1.12,1);head.position.set(0,44,60);userG.add(head);
