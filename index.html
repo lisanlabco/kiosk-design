@@ -193,12 +193,30 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  const cm=new THREE.MeshStandardMaterial({color:0xd0d3d7,roughness:0.8});
  const tm=new THREE.MeshStandardMaterial({color:0xe2d7c6,roughness:0.75});
  const um=(g,m)=>{const o=new THREE.Mesh(g,m);o.castShadow=true;o.receiveShadow=true;return o};
- const table=um(new THREE.BoxGeometry(90,2,64),tm);table.position.set(0,-1,14);userG.add(table);
- for(const x of[-42,42])for(const z of[-15,43]){const l=um(new THREE.BoxGeometry(3,73,3),tm);l.position.set(x,-38.5,z);userG.add(l)}
+ const RB=(w,h,d,r)=>new RoundedBoxGeometry(w,h,d,4,r);
+ const wood=new THREE.MeshStandardMaterial({color:0x6a4a34,roughness:0.55});
+ const stone=new THREE.MeshPhysicalMaterial({color:0xece8e1,roughness:0.25,clearcoat:0.6});
+ const brass=new THREE.MeshPhysicalMaterial({color:0xc9a96a,metalness:1,roughness:0.3});
+ const leather=new THREE.MeshPhysicalMaterial({color:0x8a7a68,roughness:0.6,sheen:0.4});
+ const rugM=new THREE.MeshStandardMaterial({color:0xcfc6b8,roughness:1});
+ /* 理財櫃檯：石材檯面＋木作櫃體＋金屬踢腳 */
+ const top=um(RB(120,3,62,1.2),stone);top.position.set(0,-1.5,12);userG.add(top);
+ const body=um(RB(116,68,22,1.5),wood);body.position.set(0,-37,-8);userG.add(body);
+ for(const sx of[-1,1]){const sp=um(RB(4,70,58,1),wood);sp.position.set(sx*57,-38,12);userG.add(sp)}
+ const apron=um(RB(108,6,3,0.8),wood);apron.position.set(0,-6,40);userG.add(apron);
+ const lip=um(new THREE.BoxGeometry(108,0.6,0.4),brass);lip.position.set(0,-8.6,41.6);userG.add(lip);
+ const kick=um(new THREE.BoxGeometry(112,4,20),brass);kick.position.set(0,-73,-8);userG.add(kick);
+ /* 隔屏：霧面玻璃 */
+ const scr=new THREE.Mesh(new THREE.BoxGeometry(120,34,0.8),new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.35,transmission:0.85,thickness:0.8,transparent:true,opacity:0.6}));scr.position.set(0,17,-19);userG.add(scr);
+ const scrF=um(new THREE.BoxGeometry(120,0.8,1.2),brass);scrF.position.set(0,34,-19);userG.add(scrF);
+ /* 單人皮質沙發扶手椅 */
+ const seat=um(RB(54,10,50,4),leather);seat.position.set(0,-30,70);userG.add(seat);
+ const back=um(RB(56,40,10,4.5),leather);back.position.set(0,-6,92);back.rotation.x=0.16;userG.add(back);
+ for(const sx of[-1,1]){const arm=um(RB(9,20,52,4),leather);arm.position.set(sx*30,-22,72);userG.add(arm)}
+ const base=um(RB(62,6,54,2),wood);base.position.set(0,-38,72);userG.add(base);
+ for(const sx of[-1,1])for(const z of[48,96]){const l=um(new THREE.CylinderGeometry(1.2,0.8,34,12),brass);l.position.set(sx*27,-58,z);userG.add(l)}
+ const rug=new THREE.Mesh(new THREE.CylinderGeometry(70,70,0.6,64),rugM);rug.scale.z=0.75;rug.position.set(0,-74.7,60);rug.receiveShadow=true;userG.add(rug);
  const limb=(p,q,r)=>{const A=new THREE.Vector3(...p),Bv=new THREE.Vector3(...q),dd=Bv.clone().sub(A),len=dd.length();const m=um(new THREE.CapsuleGeometry(r,Math.max(0.1,len-2*r),6,16),pm);m.position.copy(A).add(Bv).multiplyScalar(0.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dd.normalize());userG.add(m)};
- const seat=um(new THREE.BoxGeometry(46,4,44),cm);seat.position.set(0,-30,66);userG.add(seat);
- const back=um(new THREE.BoxGeometry(46,44,4),cm);back.position.set(0,-6,88);back.rotation.x=0.12;userG.add(back);
- for(const x of[-20,20])for(const z of[48,84]){const l=um(new THREE.CylinderGeometry(1.2,1.2,43,12),cm);l.position.set(x,-53.5,z);userG.add(l)}
  limb([0,-20,68],[0,26,64],11.5);
  const head=um(new THREE.SphereGeometry(8.6,32,20),pm);head.scale.set(0.92,1.12,1);head.position.set(0,44,60);userG.add(head);
  limb([0,30,63],[0,36,61],4.5);
@@ -649,8 +667,8 @@ const swatch=(s,i)=>{const bg=s[2]!==undefined?`linear-gradient(135deg,#${s[1].t
 function renderInfo(){const c=concepts[cur],d=c.d,LS=c.land&&c.vi===0&&!c.portrait,spec=LS?d.spec:(c.alt&&c.portrait)?d.specP:(c.vars&&d.varSpec)?d.varSpec[c.vi]:d.spec;
  info.innerHTML=`<h2>${d.k}款${c.vars&&!c.lockVar?'・'+d.varNames[c.vi]:''}</h2><p class="swl">金屬配色</p><div class="sw" id="sw">${d.sw.map(swatch).join('')}</div>`;
  info.querySelectorAll('#sw button').forEach(b=>b.addEventListener('click',()=>{const s=d.sw[+b.dataset.s];c.mats.forEach(m=>m.color.setHex(s[1]));if(s[2]!==undefined)c.acc.forEach(m=>m.color.setHex(s[2]));if(s[3]!==undefined&&c.extra)c.extra.forEach(m=>m.color.setHex(s[3]));info.querySelectorAll('#sw button').forEach(x=>x.setAttribute('aria-pressed',x===b))}))}
-function view(v){const c=concepts[cur],d=c.d,P2=(c.alt&&c.portrait)||(c.land&&!(c.vi===0&&!c.portrait)),R=P2?d.RP:d.R,h=P2?d.hP:d.h;tgtGoal.set(0,h*0.47,0);if(userG.visible)tgtGoal.set(0,-6,30);
- const P={q:[R*0.55,h*0.95,R*0.82],f:[0,h*0.7,R],s:[R,h*0.7,0],b:[-R*0.5,h*0.85,-R*0.86]}[v];camGoal=new THREE.Vector3(...P);let off=camGoal.clone().sub(tgtGoal);off.multiplyScalar(Math.max(1,0.72/cam.aspect));if(userG.visible){const U={q:[0.85,0.32,0.42],f:[0.25,0.3,-1],s:[1,0.18,0],b:[0.3,0.35,1]}[v];off=new THREE.Vector3(...U).normalize().multiplyScalar(330*Math.max(1,0.72/cam.aspect))}camGoal=tgtGoal.clone().add(off);anim=new THREE.Spherical().setFromVector3(off)}
+function view(v){const c=concepts[cur],d=c.d,P2=(c.alt&&c.portrait)||(c.land&&!(c.vi===0&&!c.portrait)),R=P2?d.RP:d.R,h=P2?d.hP:d.h;tgtGoal.set(0,h*0.47,0);if(userG.visible)tgtGoal.set(0,-14,30);
+ const P={q:[R*0.55,h*0.95,R*0.82],f:[0,h*0.7,R],s:[R,h*0.7,0],b:[-R*0.5,h*0.85,-R*0.86]}[v];camGoal=new THREE.Vector3(...P);let off=camGoal.clone().sub(tgtGoal);off.multiplyScalar(Math.max(1,0.72/cam.aspect));if(userG.visible){const U={q:[0.85,0.32,0.42],f:[0.25,0.3,-1],s:[1,0.18,0],b:[0.3,0.35,1]}[v];off=new THREE.Vector3(...U).normalize().multiplyScalar(370*Math.max(1,0.72/cam.aspect))}camGoal=tgtGoal.clone().add(off);anim=new THREE.Spherical().setFromVector3(off)}
 function setDoor(o){doorOpen=o;doorBtn.textContent=o?'關上後門':'打開後門';doorBtn.classList.toggle('on',o)}
 const orientBtn=document.getElementById('orient');
 const varbar=document.getElementById('varbar');
