@@ -569,11 +569,11 @@ const concepts=[];
  const fb=ft.clone();fb.colorSpace=THREE.NoColorSpace;fb.needsUpdate=true;
  const fabM=new THREE.MeshStandardMaterial({color:d.sw[0][3]??0x2c2d30,roughness:1,map:ft,bumpMap:fb,bumpScale:0.7});
  const spk=mesh(new RoundedBoxGeometry(32.0,4.7,0.3,3,0.12),fabM);spk.visible=false;
- CMd=new THREE.Group();CMd.position.set(0,11.2,0.3);CMd.rotation.x=9*PI/180;T.add(CMd);
+ CMd=new THREE.Group();CMd.position.set(0,10.38,0.3);CMd.rotation.x=9*PI/180;T.add(CMd);
  const hsg=new THREE.Mesh(new THREE.SphereGeometry(0.47,24,12),new THREE.MeshStandardMaterial({color:0x111214,roughness:0.5}));CMd.add(hsg);
  const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,0,0.44);CMd.add(r);
  const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,0,0.46);CMd.add(l);const dAn=new THREE.Group();dAn.position.set(0,0,0.5);CMd.add(dAn);
- for(const x of[-2.6,2.6]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,11.2,0.73);T.add(m)}
+ for(const x of[-2.6,2.6]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,10.38,0.73);T.add(m)}
  const red=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0xb3262e,roughness:0.4}));red.position.set(10.6,-12.02,0.2);T.add(red);
  const grn=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0x1f6b4f,roughness:0.4}));grn.position.set(12.3,-12.02,0.2);T.add(grn);
  let iCband=null;const dJ=new THREE.Group();while(G.children.length)dJ.add(G.children[0]);dJ.position.y=6.6;G.add(dJ);
