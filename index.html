@@ -639,7 +639,7 @@ function uiTex(land){
  const avatar=(cx,cy,r)=>{g.save();g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.fillStyle='rgba(255,255,255,.16)';g.fill();g.clip();g.fillStyle='rgba(255,255,255,.88)';g.beginPath();g.arc(cx,cy-r*0.22,r*0.36,0,Math.PI*2);g.fill();g.beginPath();g.ellipse(cx,cy+r*0.78,r*0.7,r*0.5,0,0,Math.PI*2);g.fill();g.restore()};
  const icon=(cx,cy,r)=>{g.strokeStyle=teal;g.lineWidth=5;g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.stroke();g.beginPath();g.arc(cx,cy-r*0.18,r*0.24,0,Math.PI*2);g.stroke();g.beginPath();g.arc(cx,cy+r*0.62,r*0.46,Math.PI*1.15,Math.PI*1.85);g.stroke()};
  const items=[['開戶','服務'],['文件','簽署'],['交易','申請'],['業務','諮詢']];
- const grad=(x0,y0,x1,y1)=>{const q=g.createLinearGradient(x0,y0,x1,y1);q.addColorStop(0,'#007d7d');q.addColorStop(1,'#009944');return q};
+ const grad=(x0,y0,x1,y1)=>{const q=g.createLinearGradient(x0,y0,x1,y1);q.addColorStop(0,'#007d7d');q.addColorStop(1,'#007d7d');return q};
  g.fillStyle='#fff';g.fillRect(0,0,W,H);
  if(!land){
   const top=H*0.6;g.fillStyle=grad(0,0,0,top);g.fillRect(0,0,W,top);
@@ -656,7 +656,7 @@ function uiTex(land){
   g.fillStyle='rgba(255,255,255,.8)';g.font=`400 32px ${F}`;g.fillText('您好，今天想辦理什麼業務？',lw/2,305);
   avatar(lw/2,525,140);
   const gx=lw+50,gw=W-gx-50,cw=(gw-30)/2,ch=200;
-  items.forEach((t,i)=>{const x=gx+(i%2)*(cw+30),y=70+Math.floor(i/2)*(ch+30);g.fillStyle='#e8f3f1';pill(x,y,cw,ch,24);g.fill();icon(x+cw/2,y+72,40);g.fillStyle='#2b2b2b';g.font=`500 34px ${F}`;g.fillText(t[0]+t[1],x+cw/2,y+160)});
+  items.forEach((t,i)=>{const x=gx+(i%2)*(cw+30),y=70+Math.floor(i/2)*(ch+30);g.fillStyle='#e6f2f2';pill(x,y,cw,ch,24);g.fill();icon(x+cw/2,y+72,40);g.fillStyle='#2b2b2b';g.font=`500 34px ${F}`;g.fillText(t[0]+t[1],x+cw/2,y+160)});
   g.fillStyle=teal;pill(gx,H-170,gw,92,46);g.fill();g.fillStyle='#fff';g.font=`700 40px ${F}`;g.fillText('開始使用 →',gx+gw/2,H-124);
  }
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t}
