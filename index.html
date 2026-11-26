@@ -254,15 +254,15 @@ const lensMat=new THREE.MeshPhysicalMaterial({color:0x0a1020,roughness:0.04,clea
 const ringMat=metal(0x9a9da3,0.25);
 const darkMat=new THREE.MeshStandardMaterial({color:0x1b1c1f,roughness:0.75});
 const holeMat=new THREE.MeshBasicMaterial({color:0x050505});
-const linerMat=new THREE.MeshStandardMaterial({color:0x141517,roughness:0.85,side:THREE.DoubleSide});
+const linerMat=new THREE.MeshStandardMaterial({color:0x141517,roughness:0.85,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
 const pcMat=new THREE.MeshStandardMaterial({color:0x2a2c30,roughness:0.55,metalness:0.3});
 const trayMat=new THREE.MeshPhysicalMaterial({color:0xc4c7cb,metalness:1,roughness:0.3});
 function rectS(w,h,r,cx=0,cy=0,p=new THREE.Shape()){const x=cx-w/2,y=cy-h/2;r=Math.min(r,w/2,h/2);p.moveTo(x+r,y);p.lineTo(x+w-r,y);p.quadraticCurveTo(x+w,y,x+w,y+r);p.lineTo(x+w,y+h-r);p.quadraticCurveTo(x+w,y+h,x+w-r,y+h);p.lineTo(x+r,y+h);p.quadraticCurveTo(x,y+h,x,y+h-r);p.lineTo(x,y+r);p.quadraticCurveTo(x,y,x+r,y);return p}
 /* 主機艙：門開在 local -z 面（z=0），往 +z 是艙內 */
-function hostBay(parent,mat,{hw,hh,cav,pc=[0.7,0.55,0.75]}){
- const g=new THREE.Group();parent.add(g);
- {const sh=rectS(hw,hh,0.6,0,0,new THREE.Shape());sh.holes.push(rectS(hw-0.3,hh-0.3,0.5,0,0,new THREE.Path()));const lg=new THREE.ExtrudeGeometry(sh,{depth:cav,bevelEnabled:false});const l=new THREE.Mesh(lg,linerMat);l.position.z=0.02;g.add(l);
-  const bk=new THREE.Mesh(new THREE.PlaneGeometry(hw,hh),linerMat);bk.position.z=cav;g.add(bk)}
+function hostBay(parent,mat,{hw,hh,cav,pc=[0.7,0.55,0.75],back}){
+ const g=new THREE.Group();parent.add(g);const cb=back??cav;
+ {const sh=rectS(hw-0.08,hh-0.08,0.56,0,0,new THREE.Shape());sh.holes.push(rectS(hw-0.38,hh-0.38,0.46,0,0,new THREE.Path()));const lg=new THREE.ExtrudeGeometry(sh,{depth:cb-0.1,bevelEnabled:false});const l=new THREE.Mesh(lg,linerMat);l.position.z=0.04;g.add(l);
+  const bk=new THREE.Mesh(new THREE.PlaneGeometry(hw-0.3,hh-0.3),linerMat);bk.position.z=cb-0.08;g.add(bk)}
  const P=new THREE.Group();P.position.z=cav*0.55;P.visible=false;g.add(P);
  const bw=hw*pc[0],bh=hh*pc[1],bd=cav*pc[2];
  const box=new THREE.Mesh(new RoundedBoxGeometry(bw,bh,bd,3,0.25),pcMat);box.position.y=-hh/2+0.9+bh/2;P.add(box);
@@ -284,7 +284,7 @@ function hostBox(parent,mat,{W,H,D,r=1.2,hw,hh,hcy=0,cav,pc}){
  const eg=new THREE.ExtrudeGeometry(sh,{depth:cav-0.2,bevelEnabled:true,bevelSize:0.15,bevelThickness:0.15,bevelSegments:2,curveSegments:12});
  const ring=new THREE.Mesh(eg,mat);ring.position.z=-D/2+0.15;ring.castShadow=ring.receiveShadow=true;G.add(ring);
  for(let i=0;i<14;i++){const v=new THREE.Mesh(new THREE.PlaneGeometry(0.22,Math.min(2.2,D*0.3)),holeMat);v.rotation.x=Math.PI/2;v.position.set(-W*0.32+i*W*0.049,-H/2-0.01,0);G.add(v)}
- const bay=hostBay(G,mat,{hw,hh,cav,pc});bay.g.position.set(0,hcy,-D/2);return {G,door:{piv:bay.piv,pc:bay.pc}}}
+ const bay=hostBay(G,mat,{hw,hh,cav,pc,back:cav-0.4});bay.g.position.set(0,hcy,-D/2);return {G,door:{piv:bay.piv,pc:bay.pc}}}
 
 
 function dotTex(ru,rv){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,64,64);g.fillStyle='#161616';g.beginPath();g.arc(32,32,15,0,Math.PI*2);g.fill();const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(ru,rv);t.anisotropy=8;return t}
