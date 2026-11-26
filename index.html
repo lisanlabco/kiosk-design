@@ -176,7 +176,10 @@ DATA[8].sw=[['白銀色',0xcfd1d4,0xb9bcc0,0x34363a],['深灰色',0x55585d,0x3a3
 const fig=document.getElementById('fig');
 let renderer;
 try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});}catch(e){document.getElementById('load').textContent='這個瀏覽器無法顯示3D，請換 Chrome 或 Safari 開啟。';throw e}
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const COARSE=matchMedia('(pointer:coarse)').matches;
+renderer.setPixelRatio(Math.min(devicePixelRatio,COARSE?1.5:2));
+let dirty=6;const kick=()=>{dirty=6};
+if(COARSE){const ld=document.querySelector('.lead');if(ld)ld.textContent='單指旋轉，雙指縮放或平移，點兩下可聚焦。'}
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 fig.prepend(renderer.domElement);
@@ -189,7 +192,7 @@ cam.position.set(55,34,80);
 const ctl=new OrbitControls(cam,renderer.domElement);
 ctl.enableDamping=true;ctl.enablePan=true;ctl.screenSpacePanning=true;ctl.zoomToCursor=true;ctl.minDistance=12;ctl.maxDistance=460;ctl.maxPolarAngle=Math.PI/2-0.03;ctl.autoRotateSpeed=1.4;
 const sun=new THREE.DirectionalLight(0xffffff,1.5);sun.position.set(28,75,42);sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
+sun.shadow.mapSize.set(COARSE?1024:2048,COARSE?1024:2048);
 Object.assign(sun.shadow.camera,{left:-40,right:40,top:40,bottom:-40,near:10,far:300});
 sun.shadow.bias=-0.0004;sun.shadow.radius=7;
 scene.add(sun,new THREE.HemisphereLight(0xffffff,0x8a8378,0.45));
@@ -628,7 +631,7 @@ kC.camObj=()=>CM;
  kC.modes=[{name:'燈條：熄滅',apply:()=>setLed(null)},{name:'服務需求（蒂芬尼綠）',apply:()=>setLed(0x0ABAB5)},{name:'設備異常（橘）',apply:()=>setLed(0xFF8A1F)}];
  concepts.push(kC);}
 
-concepts.forEach(c=>{scene.add(c.G);c.G.visible=false;if(c.alt){scene.add(c.alt);c.alt.visible=false}if(c.vars)c.vars.forEach(g=>{scene.add(g);g.visible=false});if(c.land){scene.add(c.land);c.land.visible=false}});
+concepts.forEach((c,ci)=>{if(![5,6,8,10].includes(ci))return;scene.add(c.G);c.G.visible=false;if(c.alt){scene.add(c.alt);c.alt.visible=false}if(c.vars)c.vars.forEach(g=>{scene.add(g);g.visible=false});if(c.land){scene.add(c.land);c.land.visible=false}});
 
 /* 螢幕示意畫面 */
 function uiTex(land){
@@ -662,7 +665,7 @@ function uiTex(land){
 const txt='AI智慧櫃檯您好，今天想辦理什麼業務？開戶服務文件簽署交易申請業務諮詢開始使用→LOGO';
 Promise.race([Promise.all([document.fonts.load(`700 40px "Noto Sans TC"`,txt),document.fonts.load(`500 30px "Noto Sans TC"`,txt),document.fonts.load(`400 30px "Noto Sans TC"`,txt)]),new Promise(r=>setTimeout(r,2500))]).catch(()=>{}).then(()=>{
  const tp=uiTex(false),tl=uiTex(true);
- for(const [m,k] of uiMeshes){m.material.map=k==='p'?tp:tl;m.material.color.set(0xffffff);m.material.needsUpdate=true}
+ kick();for(const [m,k] of uiMeshes){m.material.map=k==='p'?tp:tl;m.material.color.set(0xffffff);m.material.needsUpdate=true}
 });
 
 /* 介面 */
@@ -697,7 +700,7 @@ document.getElementById('userBtn').addEventListener('click',e=>{userG.visible=!u
 spinBtn.addEventListener('click',()=>{ctl.autoRotate=!ctl.autoRotate;spinBtn.classList.toggle('on',ctl.autoRotate)});
 ctl.addEventListener('start',()=>{anim=null;focusTo=null});
 
-const ro=new ResizeObserver(()=>{const w=fig.clientWidth,h=fig.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.fov=w<520?36:30;cam.updateProjectionMatrix()});ro.observe(fig);
+const ro=new ResizeObserver(()=>{kick();const w=fig.clientWidth,h=fig.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.fov=w<520?36:30;cam.updateProjectionMatrix()});ro.observe(fig);
 select(SHOW[0]);
 cam.position.copy(camGoal);ctl.target.copy(tgtGoal);anim=null;
 const pipEl=document.getElementById('pip'),pipLbl=document.getElementById('pipLbl'),pipCam=new THREE.PerspectiveCamera(32,1.4,0.5,400),fovCones=[];let pipUntil=0;
@@ -711,14 +714,18 @@ function focusCam(txt){pipUntil=performance.now()+4000;pipLbl.textContent=txt}
   const hit=rc.intersectObjects(scene.children,true).find(h=>h.object.visible&&h.object.type==='Mesh'&&h.object!==ground&&!(h.object.material&&h.object.material.transparent&&h.object.material.opacity<0.3));
   if(!hit)return;anim=null;const off=cam.position.clone().sub(ctl.target);off.multiplyScalar(0.55);focusTo={t:hit.point.clone(),p:hit.point.clone().add(off)}})}
 let focusTo=null;
+ctl.addEventListener('change',kick);['input','click','pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,kick,true));
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let first=true;
 renderer.setAnimationLoop(()=>{
  if(anim){const k=reduce?1:0.09;ctl.target.lerp(tgtGoal,k);const sp=new THREE.Spherical().setFromVector3(cam.position.clone().sub(ctl.target));let dt=anim.theta-sp.theta;dt=Math.atan2(Math.sin(dt),Math.cos(dt));const dp=anim.phi-sp.phi,dr=anim.radius-sp.radius;sp.theta+=dt*k;sp.phi+=dp*k;sp.radius+=dr*k;cam.position.setFromSpherical(sp).add(ctl.target);if(Math.abs(dt)<0.003&&Math.abs(dp)<0.003&&Math.abs(dr)<0.05)anim=null}
- for(const c of concepts){if(!c.door)continue;const goal=(c===concepts[cur]&&doorOpen)?-1.85:0;c.door.piv.rotation.y+=(goal-c.door.piv.rotation.y)*(reduce?1:0.1);c.door.pc.visible=c.door.piv.rotation.y<-0.25}
+ let moving=!!(anim||focusTo||ctl.autoRotate||performance.now()<pipUntil+100||concepts[cur].pulse);
+ for(const c of concepts){if(!c.door)continue;const goal=(c===concepts[cur]&&doorOpen)?-1.85:0;if(Math.abs(goal-c.door.piv.rotation.y)>1e-3)moving=true;c.door.piv.rotation.y+=(goal-c.door.piv.rotation.y)*(reduce?1:0.1);c.door.pc.visible=c.door.piv.rotation.y<-0.25}
  if(focusTo){ctl.target.lerp(focusTo.t,0.12);cam.position.lerp(focusTo.p,0.12);if(cam.position.distanceTo(focusTo.p)<0.1)focusTo=null}
  for(const c of concepts)if(c.tick&&c===concepts[cur])c.tick(performance.now());
- ctl.update();renderer.render(scene,cam);
+ const ch=ctl.update();
+ if(!(ch||moving||dirty>0||first))return;if(dirty>0)dirty--;
+ renderer.render(scene,cam);
  {const c=concepts[cur],o=c.camObj&&c.camObj(),on=o&&performance.now()<pipUntil;
   for(const k of fovCones)k.visible=on&&k.parent===o;
   pipEl.hidden=!on;
