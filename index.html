@@ -640,6 +640,7 @@ const concepts=[];
  {const g=new THREE.ExtrudeGeometry(rs(W,24,2.2),{depth:PLATE-0.4,bevelEnabled:true,bevelSize:0.2,bevelThickness:0.2,bevelSegments:4});g.rotateX(-PI/2);g.translate(0,0.2,-8.1);K.add(mesh(g,silver));
   for(const sx of[-1,1])for(const z of[-17,1.5]){const f=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.12,24),rec);f.position.set(sx*13.5,0.04,z);K.add(f)}}
  const aHost=hostBox(K,white,{W:33.4,H:11,D:15,r:3.2,hw:27,hh:8.6,hcy:0,cav:11,pc:[0.6,0.62,0.72]});aHost.G.position.set(0,PLATE+5.5,-12.6);
+ {const br=mesh(ext(s=>{s.moveTo(-6.2,0);s.lineTo(0.6,0);s.lineTo(1.25,2.7);s.lineTo(-1.15,10.0);s.quadraticCurveTo(-1.35,10.6,-2.1,10.6);s.lineTo(-6.2,10.6)},33.4,0.6),white);br.position.y=PLATE;K.add(br)}
  const Cz=1.083,Cr=2.4,T=1.8,arcEnd=[3.338,3.221],H1=[0.507,11],H2=[-1.184,10.384],IN=[1.647,2.605];
  {const hs=mesh(ext(s=>{s.moveTo(-6,0);s.lineTo(Cz,0);s.absarc(Cz,Cr,Cr,-PI/2,a,false);s.lineTo(H1[0],H1[1]);s.lineTo(H2[0],H2[1]);s.lineTo(IN[0],IN[1]);s.absarc(Cz,Cr,Cr-T,a,-PI/2,true);s.lineTo(-6,T);s.absarc(-6,T/2,T/2,PI/2,PI*1.5,false)},W,B),white);hs.position.y=PLATE;K.add(hs)}
  const toW=(pz,py,off)=>new THREE.Vector3(0,py+PLATE+B+sa*off,pz+ca*off);
