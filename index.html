@@ -688,6 +688,7 @@ const concepts=[];
 kC.camObj=()=>CM;
  kC.sliders=()=>[{label:'螢幕傾角',min:-5,max:5,value:kC.sd,fmt:v=>(20+v)+'°',set:v=>{kC.sd=v;ap()}},{cam:true,label:'鏡頭下俯',min:0,max:20,value:kC.ct,fmt:v=>v+'°',set:v=>{kC.ct=v;ap()}},{cam:true,label:'鏡頭左右',min:-15,max:15,value:kC.cp,fmt:v=>(v>0?'右':v<0?'左':'')+Math.abs(v)+'°',set:v=>{kC.cp=v;ap()}}];
  kC.modes=[{name:'燈條：熄滅',apply:()=>setLed(null)},{name:'服務需求（蒂芬尼綠）',apply:()=>setLed(0x0ABAB5)},{name:'設備異常（橘）',apply:()=>setLed(0xFF8A1F)}];
+ kC.mi=1;kC.modes[1].apply();
  concepts.push(kC);}
 
 concepts.forEach((c,ci)=>{if(![5,6,8,10].includes(ci))return;scene.add(c.G);c.G.visible=false;if(c.alt){scene.add(c.alt);c.alt.visible=false}if(c.vars)c.vars.forEach(g=>{scene.add(g);g.visible=false});if(c.land){scene.add(c.land);c.land.visible=false}});
