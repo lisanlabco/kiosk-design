@@ -425,10 +425,14 @@ const concepts=[];
   const tri=[V(6-dep,0),V(6,0),V(zt,Hp)];
   const inset=(p,t)=>{const L=p.map((q,i)=>{const r=p[(i+1)%p.length],dx=r.x-q.x,dy=r.y-q.y,len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;return{x:q.x+nx*t,y:q.y+ny*t,dx,dy}});return L.map((l,i)=>{const m=L[(i+L.length-1)%L.length],den=m.dx*l.dy-m.dy*l.dx,u=((l.x-m.x)*l.dy-(l.y-m.y)*l.dx)/den;return V(m.x+m.dx*u,m.y+m.dy*u)})};
   const roundPoly=(p,pts,r0)=>{pts.forEach((P,i)=>{const r=Array.isArray(r0)?r0[i]:r0;const pr=pts[(i+pts.length-1)%pts.length],nx=pts[(i+1)%pts.length];const a=P.clone().add(pr.clone().sub(P).setLength(r)),c=P.clone().add(nx.clone().sub(P).setLength(r));if(i===0)p.moveTo(a.x,a.y);else p.lineTo(a.x,a.y);p.quadraticCurveTo(P.x,P.y,c.x,c.y)});p.closePath();return p};
-  const triM=mesh(ext(s=>{roundPoly(s,tri,[3.2,0.5,1.2]);if(mode===1)s.holes.push(rectS(10,8.6,0.6,-4,5.8,new THREE.Path()));else s.holes.push(roundPoly(new THREE.Path(),inset(tri,2.1),1.6))},W,0.8),mode===2?frostM:body);triM.position.y=lift-1.2;U.add(triM);
-  if(mode===1){const Gb=new THREE.Group();Gb.rotation.y=Math.PI/2;Gb.position.set(-W/2,5.8+lift-1.2,-4);U.add(Gb);
-   const bay=hostBay(Gb,body,{hw:10,hh:8.6,cav:14,pc:[0.72,0.55,0.8]});
-   const fill=mesh(new THREE.BoxGeometry(10.02,8.62,W-14-0.05),body);fill.position.z=14+(W-14)/2;Gb.add(fill);U.userData.door={piv:bay.piv,pc:bay.pc}}
+  if(mode===1){const B0=tri[0],T0=tri[2],du=T0.clone().sub(B0),Lg=du.length(),u=du.clone().normalize(),n=new THREE.Vector2(u.y,-u.x);
+   const s1=4.2,s2=15.2,cv=8.5,P1=B0.clone().addScaledVector(u,s1),P2=B0.clone().addScaledVector(u,s2),P3=P2.clone().addScaledVector(n,cv),P4=P1.clone().addScaledVector(n,cv);
+   const triM=mesh(ext(s=>{roundPoly(s,[B0,tri[1],T0,P2,P3,P4,P1],[3.2,0.5,1.2,0.25,0.5,0.5,0.25])},W,0.8),body);triM.position.y=lift-1.2;U.add(triM);
+   for(const sx of[-1,1]){const pl=mesh(ext(s=>{const a=P1.clone().addScaledVector(n,-0.72),b=P2.clone().addScaledVector(n,-0.72);s.moveTo(a.x,a.y);s.lineTo(b.x,b.y);s.lineTo(P3.x,P3.y);s.lineTo(P4.x,P4.y);s.lineTo(a.x,a.y)},1.4,0.1),body);pl.position.set(sx*(W/2-0.7),lift-1.2,0);U.add(pl)}
+   const M=P1.clone().add(P2).multiplyScalar(0.5).addScaledVector(n,-0.66);
+   const Gb=new THREE.Group();Gb.position.set(0,M.y+lift-1.2,M.x);Gb.rotation.x=Math.atan2(-n.y,n.x);U.add(Gb);
+   const bay=hostBay(Gb,body,{hw:W-3,hh:s2-s1-0.8,cav:cv+0.6,pc:[0.6,0.55,0.75]});U.userData.door={piv:bay.piv,pc:bay.pc}}
+  else{const triM=mesh(ext(s=>{roundPoly(s,tri,[3.2,0.5,1.2]);s.holes.push(roundPoly(new THREE.Path(),inset(tri,2.1),1.6))},W,0.8),mode===2?frostM:body);triM.position.y=lift-1.2;U.add(triM)}
   const nz=Math.cos(tilt),ny=Math.sin(tilt);
   const P=new THREE.Group();P.position.set(0,Hp/2+b+ny*(b+0.05)+lift-1.2,6-Hp/2*tn+nz*(b+0.05));P.rotation.x=-tilt;U.add(P);
 
