@@ -265,11 +265,10 @@ function hostBay(parent,mat,{hw,hh,cav,pc=[0.7,0.55,0.75]}){
  const tray=new THREE.Mesh(new THREE.BoxGeometry(bw+1.2,0.35,bd+0.6),trayMat);tray.position.y=-hh/2+0.7;P.add(tray);
  const handle=new THREE.Mesh(new THREE.TorusGeometry(Math.min(2,bw*0.12),0.18,8,24,Math.PI),trayMat);handle.rotation.set(Math.PI/2,0,Math.PI);handle.position.set(0,-hh/2+0.7,-bd/2-0.5);P.add(handle);
  for(const sx of[-1,1]){const c=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,cav*0.5,10).rotateX(Math.PI/2),pcMat);c.position.set(sx*bw*0.18,box.position.y+bh/2+0.4,bd*0.15);P.add(c)}
- const piv=new THREE.Group();piv.position.set(hw/2,0,0);g.add(piv);
- const door=new THREE.Mesh(new RoundedBoxGeometry(hw-0.25,hh-0.25,0.3,3,0.12),mat);door.position.set(-hw/2,0,-0.12);door.castShadow=true;piv.add(door);
- const lock=new THREE.Mesh(new THREE.CylinderGeometry(Math.min(0.55,hh*0.09),Math.min(0.55,hh*0.09),0.35,28).rotateX(Math.PI/2),ringMat);lock.position.set(-hw+Math.max(1.3,hw*0.09),0,-0.36);piv.add(lock);
- for(const hy of[-hh*0.3,hh*0.3]){const h=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,Math.min(1.4,hh*0.22),12),ringMat);h.position.set(0.02,hy,-0.18);piv.add(h)}
- for(let i=0;i<7;i++){const v=new THREE.Mesh(new THREE.PlaneGeometry(hw*0.085,0.28),holeMat);v.rotation.y=Math.PI;v.position.set(-hw*0.36+i*hw*0.12,hh/2+0.75,-0.01);g.add(v)}
+ const piv=new THREE.Group();piv.position.set(hw/2,0,0);g.add(piv);g.userData.mat=mat;
+ const door=new THREE.Mesh(new RoundedBoxGeometry(hw-0.25,hh-0.25,0.3,3,0.12),mat);door.position.set(-hw/2,0,0.16);door.castShadow=true;piv.add(door);
+ const seam=new THREE.Mesh(new THREE.ShapeGeometry((()=>{const o=rectS(hw-0.05,hh-0.05,0.55,0,0,new THREE.Shape());o.holes.push(rectS(hw-0.25,hh-0.25,0.45,0,0,new THREE.Path()));return o})(),8),new THREE.MeshBasicMaterial({color:0x2a2b2e,side:THREE.DoubleSide}));seam.rotation.y=Math.PI;seam.position.z=-0.005;g.add(seam);
+ const push=new THREE.Mesh(new THREE.CircleGeometry(0.22,20),new THREE.MeshPhysicalMaterial({color:0x9a9da2,metalness:1,roughness:0.35}));push.rotation.y=Math.PI;push.position.set(-hw+1.0,0,-0.005);piv.add(push);
  return {g,piv,pc:P}}
 /* 帶開口的實心機殼：背面（local -z）開門 */
 function hostBox(parent,mat,{W,H,D,r=1.2,hw,hh,hcy=0,cav,pc}){
@@ -278,6 +277,7 @@ function hostBox(parent,mat,{W,H,D,r=1.2,hw,hh,hcy=0,cav,pc}){
  const sh=rectS(W,H,r,0,0,new THREE.Shape());sh.holes.push(rectS(hw,hh,0.6,0,hcy,new THREE.Path()));
  const eg=new THREE.ExtrudeGeometry(sh,{depth:cav-0.2,bevelEnabled:true,bevelSize:0.15,bevelThickness:0.15,bevelSegments:2,curveSegments:12});
  const ring=new THREE.Mesh(eg,mat);ring.position.z=-D/2+0.15;ring.castShadow=ring.receiveShadow=true;G.add(ring);
+ for(let i=0;i<14;i++){const v=new THREE.Mesh(new THREE.PlaneGeometry(0.22,Math.min(2.2,D*0.3)),holeMat);v.rotation.x=Math.PI/2;v.position.set(-W*0.32+i*W*0.049,-H/2-0.01,0);G.add(v)}
  const bay=hostBay(G,mat,{hw,hh,cav,pc});bay.g.position.set(0,hcy,-D/2);return {G,door:{piv:bay.piv,pc:bay.pc}}}
 
 
@@ -505,7 +505,7 @@ const concepts=[];
   const sc=new THREE.Mesh(new THREE.PlaneGeometry(16.5,29.4),new THREE.MeshBasicMaterial({color:0x1a1a1a,toneMapped:false}));sc.position.set(0,-0.4,0.05);P.add(sc);uiMeshes.push([sc,'p']);
   const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,15.05,0.05);P.add(r);
   const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,15.05,0.07);P.add(l);{const an=new THREE.Group();an.position.set(0,15.05,0.1);P.add(an);G.userData.camAnchor=an}
-  {const hb=hostBox(P,body,{W:15.5,H:16,D:5.2,r:1.8,hw:11,hh:10.5,hcy:-0.6,cav:4.4,pc:[0.8,0.45,0.75]});hb.G.position.set(0,-6.5,-0.6-1.6-2.4);G.userData.door=hb.door}
+  {const hb=hostBox(P,body,{W:18.2,H:20,D:4.6,r:2.4,hw:16.6,hh:18.4,hcy:0,cav:3.8,pc:[0.6,0.32,0.75]});hb.G.position.set(0,-4.5,-0.6-1.6-2.1);G.userData.door=hb.door}
   if(v===1){for(const x of[-2.5,2.5]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.14,12).rotateX(-PI/2),holeMat);m.position.set(x,38.25,-6.5);G.add(m)}}
   else for(const x of[-2,2]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,15.05,0.04);P.add(m)}
   const key=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.12,32).rotateX(PI/2),keyM);key.position.set(7.2,15.05,0.08);P.add(key);
@@ -576,7 +576,7 @@ const concepts=[];
  const red=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0xb3262e,roughness:0.4}));red.position.set(10.6,-12.02,0.2);T.add(red);
  const grn=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0x1f6b4f,roughness:0.4}));grn.position.set(12.3,-12.02,0.2);T.add(grn);
  const dJ=new THREE.Group();while(G.children.length)dJ.add(G.children[0]);dJ.position.y=6.6;G.add(dJ);
- const dHost=hostBox(G,stand,{W:30,H:6.6,D:22,r:1.4,hw:20,hh:4.6,hcy:0,cav:14,pc:[0.8,0.62,0.78]});dHost.G.position.set(0,3.3,-5.75);
+ const dHost=hostBox(G,stand,{W:30,H:6.6,D:22,r:1.4,hw:27,hh:5.2,hcy:0,cav:14,pc:[0.55,0.6,0.78]});dHost.G.position.set(0,3.3,-5.75);
  const iC={G,d,mats:[frame],acc:[stand],extra:[fabM],door:dHost.door,tilt:25,camAnchor:()=>dAn};
  iC.slider=()=>({label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
  concepts.push(iC);}
@@ -631,7 +631,7 @@ const concepts=[];
  const K=new THREE.Group();K.position.z=8;G.add(K);
  {const g=new THREE.ExtrudeGeometry(rs(W,24,2.2),{depth:PLATE-0.4,bevelEnabled:true,bevelSize:0.2,bevelThickness:0.2,bevelSegments:4});g.rotateX(-PI/2);g.translate(0,0.2,-8.1);K.add(mesh(g,silver));
   for(const sx of[-1,1])for(const z of[-17,1.5]){const f=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.12,24),rec);f.position.set(sx*13.5,0.04,z);K.add(f)}}
- const aHost=hostBox(K,white,{W:30,H:12,D:13.2,r:1.6,hw:20,hh:8.4,hcy:-0.4,cav:10,pc:[0.75,0.62,0.72]});aHost.G.position.set(0,PLATE+6,-13.4);
+ const aHost=hostBox(K,white,{W:33.4,H:11,D:15,r:3.2,hw:27,hh:8.6,hcy:0,cav:11,pc:[0.6,0.62,0.72]});aHost.G.position.set(0,PLATE+5.5,-12.6);
  const Cz=1.083,Cr=2.4,T=1.8,arcEnd=[3.338,3.221],H1=[0.507,11],H2=[-1.184,10.384],IN=[1.647,2.605];
  {const hs=mesh(ext(s=>{s.moveTo(-6,0);s.lineTo(Cz,0);s.absarc(Cz,Cr,Cr,-PI/2,a,false);s.lineTo(H1[0],H1[1]);s.lineTo(H2[0],H2[1]);s.lineTo(IN[0],IN[1]);s.absarc(Cz,Cr,Cr-T,a,-PI/2,true);s.lineTo(-6,T);s.absarc(-6,T/2,T/2,PI/2,PI*1.5,false)},W,B),white);hs.position.y=PLATE;K.add(hs)}
  const toW=(pz,py,off)=>new THREE.Vector3(0,py+PLATE+B+sa*off,pz+ca*off);
