@@ -639,8 +639,10 @@ const concepts=[];
  const K=new THREE.Group();K.position.z=8;G.add(K);
  {const g=new THREE.ExtrudeGeometry(rs(W,24,2.2),{depth:PLATE-0.4,bevelEnabled:true,bevelSize:0.2,bevelThickness:0.2,bevelSegments:4});g.rotateX(-PI/2);g.translate(0,0.2,-8.1);K.add(mesh(g,silver));
   for(const sx of[-1,1])for(const z of[-17,1.5]){const f=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.12,24),rec);f.position.set(sx*13.5,0.04,z);K.add(f)}}
- const aHost=hostBox(K,white,{W:33.4,H:11,D:15,r:3.2,hw:27,hh:8.6,hcy:0,cav:11,pc:[0.6,0.62,0.72]});aHost.G.position.set(0,PLATE+5.5,-12.6);
- {const br=mesh(ext(s=>{s.moveTo(-6.2,0);s.lineTo(0.6,0);s.lineTo(1.25,2.7);s.lineTo(-1.15,10.0);s.quadraticCurveTo(-1.35,10.6,-2.1,10.6);s.lineTo(-6.2,10.6)},33.4,0.6),white);br.position.y=PLATE;K.add(br)}
+ const aDoor=(()=>{const W2=33.4;
+  {const bodyA=mesh(ext(s=>{s.moveTo(-20.4,0);s.lineTo(0.6,0);s.lineTo(1.25,2.7);s.lineTo(-1.15,10.0);s.quadraticCurveTo(-1.35,10.6,-2.1,10.6);s.lineTo(-17.6,10.6);s.quadraticCurveTo(-20.4,10.6,-20.4,9.6);s.lineTo(-20.4,9.4);s.lineTo(-9,9.4);s.lineTo(-9,1.2);s.lineTo(-20.4,1.2);s.lineTo(-20.4,0)},W2,0.6),white);bodyA.position.y=PLATE;K.add(bodyA)}
+  for(const sx of[-1,1]){const pl=mesh(ext(s=>{s.moveTo(-20.9,1.0);s.lineTo(-8.8,1.0);s.lineTo(-8.8,9.6);s.lineTo(-20.9,9.6);s.lineTo(-20.9,1.0)},1.4,0.1),white);pl.position.set(sx*(W2/2-0.7),PLATE,0);K.add(pl)}
+  const bay=hostBay(K,white,{hw:W2-3,hh:7.0,cav:12,pc:[0.6,0.62,0.72]});bay.g.position.set(0,PLATE+5.3,-21.0);return {piv:bay.piv,pc:bay.pc}})();
  const Cz=1.083,Cr=2.4,T=1.8,arcEnd=[3.338,3.221],H1=[0.507,11],H2=[-1.184,10.384],IN=[1.647,2.605];
  {const hs=mesh(ext(s=>{s.moveTo(-6,0);s.lineTo(Cz,0);s.absarc(Cz,Cr,Cr,-PI/2,a,false);s.lineTo(H1[0],H1[1]);s.lineTo(H2[0],H2[1]);s.lineTo(IN[0],IN[1]);s.absarc(Cz,Cr,Cr-T,a,-PI/2,true);s.lineTo(-6,T);s.absarc(-6,T/2,T/2,PI/2,PI*1.5,false)},W,B),white);hs.position.y=PLATE;K.add(hs)}
  const toW=(pz,py,off)=>new THREE.Vector3(0,py+PLATE+B+sa*off,pz+ca*off);
@@ -675,7 +677,7 @@ const concepts=[];
  const sl=side(-XS),sr=side(XS);strip(K,new THREE.CatmullRomCurve3(sl));strip(K,new THREE.CatmullRomCurve3(sr));strip(K,new THREE.LineCurve3(sl[sl.length-1],sr[sr.length-1]),4);
  for(const p of[sl[sl.length-1],sr[sr.length-1]]){const o=new THREE.Mesh(new THREE.SphereGeometry(0.26,16,10),acr);o.position.copy(p);K.add(o)}
  const setLed=c=>{if(c==null){acr.emissive.setHex(0);acr.emissiveIntensity=0;halo.opacity=0;halo2.opacity=0;coreM.visible=false}else{acr.emissive.setHex(c);acr.emissiveIntensity=0.9;halo.color.setHex(c);halo.opacity=0.42;halo2.color.setHex(c);halo2.opacity=0.14;coreM.color.setHex(c);coreM.visible=true}};setLed(null);
- const kC={G,d,mats:[white],acc:[silver],door:aHost.door,mi:0,sd:0,ct:11,cp:0};
+ const kC={G,d,mats:[white],acc:[silver],door:aDoor,mi:0,sd:0,ct:11,cp:0};
  const ap=()=>{hinge.rotation.x=-(a+kC.sd*PI/180);CM.rotation.x=kC.ct*PI/180;CM.rotation.y=kC.cp*PI/180};ap();
 kC.camObj=()=>CM;
  kC.sliders=()=>[{label:'螢幕傾角',min:-5,max:5,value:kC.sd,fmt:v=>(20+v)+'°',set:v=>{kC.sd=v;ap()}},{cam:true,label:'鏡頭下俯',min:0,max:20,value:kC.ct,fmt:v=>v+'°',set:v=>{kC.ct=v;ap()}},{cam:true,label:'鏡頭左右',min:-15,max:15,value:kC.cp,fmt:v=>(v>0?'右':v<0?'左':'')+Math.abs(v)+'°',set:v=>{kC.cp=v;ap()}}];
