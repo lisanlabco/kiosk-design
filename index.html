@@ -575,9 +575,18 @@ const concepts=[];
  for(const x of[-2.6,2.6]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,11.2,0.73);T.add(m)}
  const red=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0xb3262e,roughness:0.4}));red.position.set(10.6,-12.02,0.2);T.add(red);
  const grn=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0x1f6b4f,roughness:0.4}));grn.position.set(12.3,-12.02,0.2);T.add(grn);
- const dJ=new THREE.Group();while(G.children.length)dJ.add(G.children[0]);dJ.position.y=6.6;G.add(dJ);
+ let iCband=null;const dJ=new THREE.Group();while(G.children.length)dJ.add(G.children[0]);dJ.position.y=6.6;G.add(dJ);
  const dHost=hostBox(G,stand,{W:30,H:6.6,D:22,r:1.4,hw:27,hh:5.2,hcy:0,cav:14,pc:[0.55,0.6,0.78]});dHost.G.position.set(0,3.3,-5.75);
- const iC={G,d,mats:[frame],acc:[stand],extra:[fabM],door:dHost.door,tilt:25,camAnchor:()=>dAn};
+ {const fft=ft.clone();fft.needsUpdate=true;fft.repeat.set(9,1.2);const ffb=fb.clone();ffb.needsUpdate=true;ffb.repeat.set(9,1.2);
+  const bandM=new THREE.MeshStandardMaterial({color:fabM.color,roughness:1,map:fft,bumpMap:ffb,bumpScale:0.7});
+  const pth=new THREE.Shape(),w=30.25,dd=22.25,rr0=1.55,x0=-w/2,z0=-dd/2;pth.moveTo(x0+rr0,z0);pth.lineTo(-x0-rr0,z0);pth.quadraticCurveTo(-x0,z0,-x0,z0+rr0);pth.lineTo(-x0,-z0-rr0);pth.quadraticCurveTo(-x0,-z0,-x0-rr0,-z0);pth.lineTo(x0+rr0,-z0);pth.quadraticCurveTo(x0,-z0,x0,-z0-rr0);pth.lineTo(x0,z0+rr0);pth.quadraticCurveTo(x0,z0,x0+rr0,z0);
+  const pts=pth.getPoints(16),front=[];for(const p of pts)if(p.y>-dd/2+3.2||Math.abs(p.x)<w/2-0.01&&p.y>0)front.push(p);
+  const sg=new THREE.BufferGeometry(),pos=[],uv=[],idx=[],H0=1.0,H1=5.6,arr=pts.filter(p=>p.y>-dd/2+3.4);arr.sort((a,b)=>Math.atan2(a.y,a.x)-Math.atan2(b.y,b.x));
+  let L=0;const acc=[0];for(let i=1;i<arr.length;i++){L+=arr[i].distanceTo(arr[i-1]);acc.push(L)}
+  arr.forEach((p,i)=>{pos.push(p.x,H0,p.y,p.x,H1,p.y);uv.push(acc[i]/L,0,acc[i]/L,1);if(i)idx.push(2*i-2,2*i-1,2*i,2*i-1,2*i+1,2*i)});
+  sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));sg.setIndex(idx);sg.computeVertexNormals();
+  const band=new THREE.Mesh(sg,bandM);band.material.side=THREE.DoubleSide;band.position.set(0,0,-5.75);G.add(band);iCband=bandM}
+ const iC={G,d,mats:[frame],acc:[stand],extra:[fabM,iCband],door:dHost.door,tilt:25,camAnchor:()=>dAn};
  iC.slider=()=>({label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
  concepts.push(iC);}
 
