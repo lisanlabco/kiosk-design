@@ -13,12 +13,12 @@
    PICTURE: 可拖曳旋轉的3D概念機，佔滿首屏大半
    COLOUR and TYPE: 暖灰棚景、墨色字，深青綠只用在選中狀態；Noto Sans TC
    LAYOUT: 上方切換三款，棚景在前，規格與配色在下（寬螢幕在右） */
-:root{color-scheme:light dark;--bg:light-dark(#f2f0ec,#141518);--stage:light-dark(#e3dfd8,#1c1d21);--hi:light-dark(#faf9f6,#2a2b30);--ink:light-dark(#1c1d1f,#ecebe7);--mute:light-dark(#6a6863,#a3a19b);--line:light-dark(#d8d3cb,#34363b);--card:light-dark(#fbfaf8,#1b1c20);--acc:light-dark(#1f6b6a,#3fa59f)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+:root{color-scheme:light;--bg:#f4f6f5;--stage:#e4eae8;--hi:#ffffff;--ink:#1d2523;--mute:#5f6b68;--line:#d5dddb;--card:#ffffff;--acc:#00877F;--accd:#006B65;--red:#D9272E}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans TC",system-ui,-apple-system,"PingFang TC",sans-serif;overflow-x:clip}
 header{max-width:1240px;margin:auto;padding:22px max(5vw,16px) 12px}
-h1{font-size:clamp(24px,4.6vw,38px);line-height:1.12;margin:0 0 6px;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(24px,4.6vw,38px);line-height:1.12;margin:0 0 6px;font-weight:700;text-wrap:balance;color:var(--accd)}
+h1::after{content:'';display:block;width:40px;height:3px;background:var(--red);border-radius:2px;margin-top:8px}
 .lead{color:var(--mute);margin:0;max-width:62ch}
 main{max-width:1240px;margin:auto;padding:0 max(5vw,16px) 36px;display:grid;gap:14px}
 @media(min-width:900px){main{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);align-items:start}.tabs{grid-column:1/-1}}
@@ -27,22 +27,28 @@ main{max-width:1240px;margin:auto;padding:0 max(5vw,16px) 36px;display:grid;gap:
 .tab b{font-weight:700;margin-right:5px}
 .tabs{gap:6px;overflow-x:auto;scrollbar-width:none}.tab{padding:0 2px;flex:1 0 auto;min-width:50px}
 @media(max-width:480px){.tab{font-size:15px}.tab b{display:block;margin:0 0 2px}}
-.tab[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected=true]{background:var(--acc);color:#fff;border-color:var(--acc)}
 .tab:focus-visible,.chip:focus-visible,.sw button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.pip{position:absolute;z-index:2;border:2px solid #0a9e99;border-radius:14px;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.18)}.pip[hidden]{display:none}.pip span{position:absolute;left:10px;top:8px;font-size:13px;font-weight:500;background:#0a9e99;color:#fff;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.pip{position:absolute;z-index:2;border:2px solid var(--acc);border-radius:14px;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.18)}.pip[hidden]{display:none}.pip span{position:absolute;left:10px;top:8px;font-size:13px;font-weight:500;background:var(--acc);color:#fff;padding:2px 8px;border-radius:8px;white-space:nowrap}
 .stage{position:relative;height:clamp(390px,64vh,700px);border-radius:20px;background:radial-gradient(110% 85% at 50% 28%,var(--hi),var(--stage));overflow:hidden}
 .stage canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
 .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);font-size:15px}
 .figwrap{display:grid;gap:10px}
+.ctrl{display:flex;flex-direction:column;gap:10px}.ctrl>*{flex:none}.ctrl .bar{gap:6px}
 @media(max-width:899px){
- .tabs{position:sticky;top:0;z-index:6;background:var(--bg);padding:8px 0 6px;margin:-8px 0 -6px}
- .tab{min-height:44px}
- .stage{position:sticky;top:58px;z-index:5;height:min(46vh,430px);box-shadow:0 10px 24px rgba(0,0,0,.10)}
- .bar{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+ html,body{height:100%}
+ body{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+ header{padding:10px 16px 6px;width:100%}h1{font-size:19px;margin:0 0 2px}.lead{font-size:13px}
+ main{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;gap:8px;padding:0 12px}
+ .tab{min-height:42px}
+ .figwrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+ .stage{flex:0 0 auto;height:44vh;height:44dvh}
+ .ctrl{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:2px 0 20px;border-top:1px solid var(--line)}
+ .bar{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
  .bar::-webkit-scrollbar{display:none}.bar .chip{flex:none}
- #sliders{flex-wrap:wrap!important;overflow:visible}
- .pip span{font-size:11px;left:6px;top:6px;max-width:calc(100% - 12px);overflow:hidden;text-overflow:ellipsis}.tiltw{flex:1 1 100%}
- .info{padding:14px 16px 16px}.info h2{font-size:20px;margin-bottom:6px}
+ #sliders{flex-wrap:wrap!important;overflow:visible}.tiltw{flex:1 1 100%}
+ .info{padding:12px 14px 14px}.info h2{font-size:18px;margin-bottom:4px}
+ .pip span{font-size:11px;left:6px;top:6px;max-width:calc(100% - 12px);overflow:hidden;text-overflow:ellipsis}
 }
 .bar{display:flex;flex-wrap:wrap;gap:6px}.bar[hidden]{display:none}
 .chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:inherit;font-size:15px;font-weight:500;cursor:pointer}
@@ -77,6 +83,7 @@ dt{color:var(--mute)}dd{margin:0}
 <div class="pip" id="pip" hidden><span id="pipLbl">鏡頭特寫</span></div>
 <div class="load" id="load">模型載入中…</div>
 </div>
+<div class="ctrl" id="ctrl">
 <div class="bar" id="varbar" hidden></div>
 <div class="bar">
 <button class="chip" data-v="q">斜角</button>
@@ -89,6 +96,7 @@ dt{color:var(--mute)}dd{margin:0}
 <button class="chip" id="userBtn">使用者情境</button>
 </div>
 <div class="bar" id="sliders" hidden></div>
+</div>
 </div>
 <section class="info" id="info" aria-live="polite"></section>
 </main>
@@ -223,7 +231,7 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  for(const x of[-9,9]){limb([x,-24,66],[x,-22,30],6.5);limb([x,-22,30],[x,-70,34],5)}
  limb([19,26,63],[21,6,48],4.2);limb([21,6,48],[7,15,18],3.8);
  limb([-19,26,63],[-21,6,48],4.2);limb([-21,6,48],[-15,2.5,26],3.8);
- const sight=new THREE.Mesh(new THREE.ConeGeometry(16,46,40,1,true).translate(0,-23,0).rotateX(-PI/2),new THREE.MeshBasicMaterial({color:0x0ABAB5,transparent:true,opacity:0.08,depthWrite:false,side:THREE.DoubleSide}));sight.position.set(0,24,6);sight.lookAt(0,44,60);userG.add(sight);
+ const sight=new THREE.Mesh(new THREE.ConeGeometry(16,46,40,1,true).translate(0,-23,0).rotateX(-PI/2),new THREE.MeshBasicMaterial({color:0x00877F,transparent:true,opacity:0.1,depthWrite:false,side:THREE.DoubleSide}));sight.position.set(0,24,6);sight.lookAt(0,44,60);userG.add(sight);
  scene.add(userG)}
 
 
@@ -626,12 +634,12 @@ concepts.forEach(c=>{scene.add(c.G);c.G.visible=false;if(c.alt){scene.add(c.alt)
 /* 螢幕示意畫面 */
 function uiTex(land){
  const W=land?1280:720,H=land?776:1080,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
- const F='"Noto Sans TC","PingFang TC",sans-serif',teal='#1f6b6a';
+ const F='"Noto Sans TC","PingFang TC",sans-serif',teal='#00877F';
  const pill=(x,y,w,h,r)=>{g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h)};
  const avatar=(cx,cy,r)=>{g.save();g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.fillStyle='rgba(255,255,255,.16)';g.fill();g.clip();g.fillStyle='rgba(255,255,255,.88)';g.beginPath();g.arc(cx,cy-r*0.22,r*0.36,0,Math.PI*2);g.fill();g.beginPath();g.ellipse(cx,cy+r*0.78,r*0.7,r*0.5,0,0,Math.PI*2);g.fill();g.restore()};
  const icon=(cx,cy,r)=>{g.strokeStyle=teal;g.lineWidth=5;g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.stroke();g.beginPath();g.arc(cx,cy-r*0.18,r*0.24,0,Math.PI*2);g.stroke();g.beginPath();g.arc(cx,cy+r*0.62,r*0.46,Math.PI*1.15,Math.PI*1.85);g.stroke()};
  const items=[['開戶','服務'],['文件','簽署'],['交易','申請'],['業務','諮詢']];
- const grad=(x0,y0,x1,y1)=>{const q=g.createLinearGradient(x0,y0,x1,y1);q.addColorStop(0,'#17595a');q.addColorStop(1,'#2a8a84');return q};
+ const grad=(x0,y0,x1,y1)=>{const q=g.createLinearGradient(x0,y0,x1,y1);q.addColorStop(0,'#006B65');q.addColorStop(1,'#00A096');return q};
  g.fillStyle='#fff';g.fillRect(0,0,W,H);
  if(!land){
   const top=H*0.6;g.fillStyle=grad(0,0,0,top);g.fillRect(0,0,W,top);
@@ -648,7 +656,7 @@ function uiTex(land){
   g.fillStyle='rgba(255,255,255,.8)';g.font=`400 32px ${F}`;g.fillText('您好，今天想辦理什麼業務？',lw/2,305);
   avatar(lw/2,525,140);
   const gx=lw+50,gw=W-gx-50,cw=(gw-30)/2,ch=200;
-  items.forEach((t,i)=>{const x=gx+(i%2)*(cw+30),y=70+Math.floor(i/2)*(ch+30);g.fillStyle='#eef4f3';pill(x,y,cw,ch,24);g.fill();icon(x+cw/2,y+72,40);g.fillStyle='#2b2b2b';g.font=`500 34px ${F}`;g.fillText(t[0]+t[1],x+cw/2,y+160)});
+  items.forEach((t,i)=>{const x=gx+(i%2)*(cw+30),y=70+Math.floor(i/2)*(ch+30);g.fillStyle='#e8f3f1';pill(x,y,cw,ch,24);g.fill();icon(x+cw/2,y+72,40);g.fillStyle='#2b2b2b';g.font=`500 34px ${F}`;g.fillText(t[0]+t[1],x+cw/2,y+160)});
   g.fillStyle=teal;pill(gx,H-170,gw,92,46);g.fill();g.fillStyle='#fff';g.font=`700 40px ${F}`;g.fillText('開始使用 →',gx+gw/2,H-124);
  }
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t}
@@ -695,8 +703,10 @@ select(SHOW[0]);
 cam.position.copy(camGoal);ctl.target.copy(tgtGoal);anim=null;
 const pipEl=document.getElementById('pip'),pipLbl=document.getElementById('pipLbl'),pipCam=new THREE.PerspectiveCamera(32,1.4,0.5,400),fovCones=[];let pipUntil=0;
 const fovGeo=new THREE.ConeGeometry(5,18,40,1,true).translate(0,-9,0).rotateX(-Math.PI/2);
-const fovMat=new THREE.MeshBasicMaterial({color:0x0ABAB5,transparent:true,opacity:0.18,depthWrite:false,side:THREE.DoubleSide});
+const fovMat=new THREE.MeshBasicMaterial({color:0x00877F,transparent:true,opacity:0.2,depthWrite:false,side:THREE.DoubleSide});
 function focusCam(txt){pipUntil=performance.now()+4000;pipLbl.textContent=txt}
+{const mq=matchMedia('(max-width:899px)'),infoEl=document.getElementById('info'),ctrlEl=document.getElementById('ctrl'),mainEl=document.querySelector('main');
+ const place=()=>{if(mq.matches)ctrlEl.appendChild(infoEl);else mainEl.appendChild(infoEl)};place();mq.addEventListener('change',place)}
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let first=true;
 renderer.setAnimationLoop(()=>{
