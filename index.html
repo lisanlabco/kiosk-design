@@ -552,7 +552,7 @@ const concepts=[];
  const sh1=mesh(new THREE.CylinderGeometry(0.42,0.42,17,24).rotateZ(PI/2),ringMat);G.add(sh1);
  const sh2=mesh(new THREE.CylinderGeometry(0.42,0.42,17,24).rotateZ(PI/2),ringMat);G.add(sh2);
  const slider=mesh(new RoundedBoxGeometry(15,0.7,1.6,2,0.25),stand);G.add(slider);
- const setTilt=deg=>{const t=deg*PI/180,ct=Math.cos(t),st=Math.sin(t);
+ let CMd=null;const setTilt=deg=>{if(CMd)CMd.rotation.x=(deg-16)*PI/180;const t=deg*PI/180,ct=Math.cos(t),st=Math.sin(t);
   const Ty=1.6+12*ct+0.7*st,Tz=2.5-12*st+0.7*ct;T.position.set(0,Ty,Tz);T.rotation.x=-t;
   const ay=Ty-1*ct-0.7*st-0.45*st,az=Tz+1*st-0.7*ct-0.45*ct,L=13,fy=1.6,dy=ay-fy,fz=az-Math.sqrt(Math.max(1,L*L-dy*dy));
   sh1.position.set(0,ay,az);sh2.position.set(0,fy,fz);slider.position.set(0,1.45,fz);
@@ -569,8 +569,10 @@ const concepts=[];
  const fb=ft.clone();fb.colorSpace=THREE.NoColorSpace;fb.needsUpdate=true;
  const fabM=new THREE.MeshStandardMaterial({color:d.sw[0][3]??0x2c2d30,roughness:1,map:ft,bumpMap:fb,bumpScale:0.7});
  const spk=mesh(new RoundedBoxGeometry(32.0,4.7,0.3,3,0.12),fabM);spk.visible=false;
- const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,11.2,0.74);T.add(r);
- const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,11.2,0.76);T.add(l);const dAn=new THREE.Group();dAn.position.set(0,11.2,0.8);T.add(dAn);
+ CMd=new THREE.Group();CMd.position.set(0,11.2,0.3);CMd.rotation.x=9*PI/180;T.add(CMd);
+ const hsg=new THREE.Mesh(new THREE.SphereGeometry(0.47,24,12),new THREE.MeshStandardMaterial({color:0x111214,roughness:0.5}));CMd.add(hsg);
+ const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,0,0.44);CMd.add(r);
+ const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,0,0.46);CMd.add(l);const dAn=new THREE.Group();dAn.position.set(0,0,0.5);CMd.add(dAn);
  for(const x of[-2.6,2.6]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,11.2,0.73);T.add(m)}
  const red=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0xb3262e,roughness:0.4}));red.position.set(10.6,-12.02,0.2);T.add(red);
  const grn=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0x1f6b4f,roughness:0.4}));grn.position.set(12.3,-12.02,0.2);T.add(grn);
@@ -586,7 +588,7 @@ const concepts=[];
   sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));sg.setIndex(idx);sg.computeVertexNormals();
   const band=new THREE.Mesh(sg,bandM);band.material.side=THREE.DoubleSide;band.position.set(0,0,-5.75);G.add(band);iCband=bandM}
  const iC={G,d,mats:[frame],acc:[stand],extra:[fabM,iCband],door:dHost.door,tilt:25,camAnchor:()=>dAn};
- iC.slider=()=>({label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
+ iC.camObj=()=>CMd;iC.slider=()=>({cam:true,label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
  concepts.push(iC);}
 
 /* J 折角終端 */
