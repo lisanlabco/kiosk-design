@@ -233,7 +233,6 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  for(const x of[-9,9]){limb([x,-24,66],[x,-22,30],6.5);limb([x,-22,30],[x,-70,34],5)}
  limb([19,26,63],[21,6,48],4.2);limb([21,6,48],[7,15,18],3.8);
  limb([-19,26,63],[-21,6,48],4.2);limb([-21,6,48],[-15,2.5,26],3.8);
- const sight=new THREE.Mesh(new THREE.ConeGeometry(16,46,40,1,true).translate(0,-23,0).rotateX(-PI/2),new THREE.MeshBasicMaterial({color:0x007d7d,transparent:true,opacity:0.1,depthWrite:false,side:THREE.DoubleSide}));sight.position.set(0,24,6);sight.lookAt(0,44,60);userG.add(sight);
  scene.add(userG)}
 
 
@@ -466,13 +465,13 @@ const concepts=[];
   const gl=new THREE.Mesh(new THREE.ShapeGeometry(rr(18.2,31.6,1.2),8),scrM);gl.position.z=0.02;P.add(gl);
   const sc=new THREE.Mesh(new THREE.PlaneGeometry(16.5,29.4),new THREE.MeshBasicMaterial({color:0x1a1a1a,toneMapped:false}));sc.position.set(0,-0.4,0.05);P.add(sc);uiMeshes.push([sc,'p']);
   const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,15.05,0.05);P.add(r);
-  const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,15.05,0.07);P.add(l);
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,15.05,0.07);P.add(l);{const an=new THREE.Group();an.position.set(0,15.05,0.1);P.add(an);G.userData.camAnchor=an}
   if(v===1){for(const x of[-2.5,2.5]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.14,12).rotateX(-PI/2),holeMat);m.position.set(x,38.25,-6.5);G.add(m)}}
   else for(const x of[-2,2]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,15.05,0.04);P.add(m)}
   const key=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.12,32).rotateX(PI/2),keyM);key.position.set(7.2,15.05,0.08);P.add(key);
   return G}
  const vars=[0,1,2,3].map(fold);
- concepts.push({G:vars[0],vars,vi:0,d,mats,acc:[keyM],door:null});}
+ concepts.push({G:vars[0],vars,vi:0,d,mats,acc:[keyM],door:null,camAnchor(){return this.vars[this.vi].userData.camAnchor}});}
 
 /* H 托座 */
 {const d=DATA[7],G=new THREE.Group();
@@ -532,11 +531,11 @@ const concepts=[];
  const fabM=new THREE.MeshStandardMaterial({color:d.sw[0][3]??0x2c2d30,roughness:1,map:ft,bumpMap:fb,bumpScale:0.7});
  const spk=mesh(new RoundedBoxGeometry(32.0,4.7,0.3,3,0.12),fabM);spk.position.set(0,-9.2,0.68);T.add(spk);
  const r=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,40).rotateX(PI/2),ringMat);r.position.set(0,11.2,0.74);T.add(r);
- const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,11.2,0.76);T.add(l);
+ const l=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.08,40).rotateX(PI/2),lensMat);l.position.set(0,11.2,0.76);T.add(l);const dAn=new THREE.Group();dAn.position.set(0,11.2,0.8);T.add(dAn);
  for(const x of[-2.6,2.6]){const m=new THREE.Mesh(new THREE.CircleGeometry(0.11,12),new THREE.MeshBasicMaterial({color:0x2a2b2e}));m.position.set(x,11.2,0.73);T.add(m)}
  const red=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0xb3262e,roughness:0.4}));red.position.set(10.6,-12.02,0.2);T.add(red);
  const grn=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.18,0.6),new THREE.MeshStandardMaterial({color:0x1f6b4f,roughness:0.4}));grn.position.set(12.3,-12.02,0.2);T.add(grn);
- const iC={G,d,mats:[frame],acc:[stand],extra:[fabM],door:null,tilt:25};
+ const iC={G,d,mats:[frame],acc:[stand],extra:[fabM],door:null,tilt:25,camAnchor:()=>dAn};
  iC.slider=()=>({label:'螢幕角度',min:10,max:35,value:iC.tilt,fmt:v=>v+'°',set:v=>{iC.tilt=v;setTilt(v);d.spec[1][1]=`13.5吋橫式觸控，可調整後仰角度（目前${v}°）`;const dd=info.querySelectorAll('dd')[1];if(dd)dd.textContent=d.spec[1][1]}});
  concepts.push(iC);}
 
@@ -705,6 +704,7 @@ select(SHOW[0]);
 cam.position.copy(camGoal);ctl.target.copy(tgtGoal);anim=null;
 const pipEl=document.getElementById('pip'),pipLbl=document.getElementById('pipLbl'),pipCam=new THREE.PerspectiveCamera(32,1.4,0.5,400),fovCones=[];let pipUntil=0;
 const fovGeo=new THREE.ConeGeometry(5,18,40,1,true).translate(0,-9,0).rotateX(-Math.PI/2);
+const fovGeoL=new THREE.ConeGeometry(11,40,40,1,true).translate(0,-20,0).rotateX(-Math.PI/2);
 const fovMat=new THREE.MeshBasicMaterial({color:0x007d7d,transparent:true,opacity:0.2,depthWrite:false,side:THREE.DoubleSide});
 function focusCam(txt){pipUntil=performance.now()+4000;pipLbl.textContent=txt}
 {const mq=matchMedia('(max-width:899px)'),infoEl=document.getElementById('info'),ctrlEl=document.getElementById('ctrl'),mainEl=document.querySelector('main');
@@ -727,7 +727,9 @@ renderer.setAnimationLoop(()=>{
  if(!(ch||moving||dirty>0||first))return;if(dirty>0)dirty--;
  renderer.render(scene,cam);
  {const c=concepts[cur],o=c.camObj&&c.camObj(),on=o&&performance.now()<pipUntil;
-  for(const k of fovCones)k.visible=on&&k.parent===o;
+  const sceneO=userG.visible?((c.camObj&&c.camObj())||(c.camAnchor&&c.camAnchor())):null;
+  for(const k of fovCones)k.visible=(on&&k.parent===o)||(!!sceneO&&k.parent===sceneO);
+  if(sceneO&&!sceneO.userData.fov){const k=new THREE.Mesh(fovGeoL,fovMat);sceneO.add(k);sceneO.userData.fov=k;fovCones.push(k);k.visible=true}
   pipEl.hidden=!on;
   if(on){if(!o.userData.fov){const k=new THREE.Mesh(fovGeo,fovMat);o.add(k);o.userData.fov=k;fovCones.push(k);k.visible=true}
    const W=fig.clientWidth,H=fig.clientHeight,pw=Math.round(Math.min(W*0.42,360)),ph=Math.round(pw*0.72),m=12;
